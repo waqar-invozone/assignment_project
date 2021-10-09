@@ -29,6 +29,6 @@ Route::get('conversations/{id}', [ConversationController::class, 'show']);
 
 
 Route::get('conversations/{id}/messages/', [MessageController::class, 'index']);
-Route::post('conversations/{id}/messages/', [MessageController::class, 'create']);
+Route::post('conversations/{id}/messages/', [MessageController::class, 'store']);
 Route::get('conversations/{id}/messages/{message_id}', [MessageController::class, 'show']);
 

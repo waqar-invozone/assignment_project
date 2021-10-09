@@ -16,11 +16,11 @@ class CreateConversationsTable extends Migration
         Schema::create('conversations', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->unsignedBigInteger('sender');
-            $table->unsignedBigInteger('receiver');
+            $table->unsignedBigInteger('senderId');
+            $table->unsignedBigInteger('receiverId');
             $table->timestamps();
-            $table->foreign('sender')->on('contacts')->references('id');
-            $table->foreign('receiver')->on('contacts')->references('id');
+            $table->foreign('senderId')->on('contacts')->references('id');
+            $table->foreign('receiverId')->on('contacts')->references('id');
         });
 
     }

@@ -14,7 +14,7 @@ class ConversationController extends Controller
 
     public function index() {
         $data = Conversation::selectRaw('conversations.id, conversations.title, sender.name as senderName, messages.content as lastMessage')
-            ->join('contacts as sender', 'sender.id', 'conversations.sender')
+            ->join('contacts as sender', 'sender.id', 'conversations.senderId')
             ->leftJoin(DB::raw('(select * from messages order by created_at desc limit 1) as messages'), 'messages.conversation_id', 'conversations.id')
             ->paginate(10);
         return response()->json(
@@ -38,28 +38,22 @@ class ConversationController extends Controller
             return response()->json($validation->messages(), 422);
         }
 
-        $data = $request->all();
 
-
-        return response()->json(
-            Conversation::insertGetId([
-                'title' => $data['title'],
-                'sender' => $data['participants'][0],
-                'receiver' => $data['participants'][1],
-            ])
-        );
+        return response()->json([
+            'id' => Conversation::add($request->all()),
+        ]);
     }
 
     public function show(Request $request, $id) {
-        $data = Conversation::select('conversations.*', 'sender.name as senderName')
-            ->join('contacts as sender', 'sender.id', 'conversations.sender')
-            ->where('id', $id)
-            ->with(['messages'])->first();
+        $data = Conversation::select('conversations.id', 'conversations.title', 'conversations.senderId','conversations.receiverId', 'sender.name as senderName')
+            ->join('contacts as sender', 'sender.id', 'conversations.senderId')
+            ->where('conversations.id', $id)
+            ->with(['messages','receiver','sender'])->first();
 
 
         $data->participants = [
-            $this->receiverContact,
-            $this->senderContact,
+            $data->receiver,
+            $data->sender,
         ];
         return response()->json($data);
     }
